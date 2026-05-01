@@ -58,31 +58,31 @@ fn main() -> ExitCode {
     println!();
 
     // Split the MESSAGE on the white space and collect into a vector
-    let words: Vec<&str> = message.split_whitespace().collect();
+    let parts: Vec<&str> = message.split_whitespace().collect();
 
     // Run the conversion based on FROM and TO
     if from == "t" || from == "T" {
-        set_to_str(to, words, &TEXT);
+        set_to(to, parts, &TEXT);
     } else if from == "d" || from == "D" {
-        set_to_str(to, words, &DECIMAL);
+        set_to(to, parts, &DECIMAL);
     } else if from == "o" || from == "O" {
-        set_to_str(to, words, &OCTAL);
+        set_to(to, parts, &OCTAL);
     } else if from == "h" || from == "H" {
         // Convert hex input to uppercase to match the reference array
-        let words_upper: Vec<String> = words
+        let parts_upper: Vec<String> = parts
             .iter()
-            .map(|&word| word.to_string().to_uppercase())
+            .map(|&part| part.to_string().to_uppercase())
             .collect();
         // Translate the message using the function versions that accepts <String>, rather than <&str>
-        set_to_string(to, words_upper, &HEX);
+        set_to(to, parts_upper, &HEX);
     } else if from == "0" {
-        let words_upper: Vec<String> = words
+        let parts_upper: Vec<String> = parts
             .iter()
-            .map(|&word| word.to_string().to_uppercase())
+            .map(|&part| part.to_string().to_uppercase())
             .collect();
-        set_to_string(to, words_upper, &HEX0);
+        set_to(to, parts_upper, &HEX0);
     } else if from == "b" || from == "B" {
-        set_to_str(to, words, &BINARY);
+        set_to(to, parts, &BINARY);
     } else {
         println!("Enter a valid FROM (t, d, o, h, 0, b)");
     }
@@ -90,78 +90,42 @@ fn main() -> ExitCode {
     ExitCode::SUCCESS
 }
 
-fn set_to_str(to: String, words: Vec<&str>, from_array: &[&str; 256]) {
+fn set_to<T>(to: String, parts: Vec<T>, from_array: &[&str; 256])
+where
+    for<'a> &'a str: PartialEq<T>,
+{
     if to == "t" || to == "T" {
         // Set which code to convert to
         let to_array = TEXT;
-        convert_from_str(words, from_array, &to_array);
+        convert_characters(parts, from_array, &to_array);
     } else if to == "d" || to == "D" {
         let to_array = DECIMAL;
-        convert_from_str(words, from_array, &to_array);
+        convert_characters(parts, from_array, &to_array);
     } else if to == "o" || to == "O" {
         let to_array = OCTAL;
-        convert_from_str(words, from_array, &to_array);
+        convert_characters(parts, from_array, &to_array);
     } else if to == "h" || to == "H" {
         let to_array = HEX;
-        convert_from_str(words, from_array, &to_array);
+        convert_characters(parts, from_array, &to_array);
     } else if to == "0" {
         let to_array = HEX0;
-        convert_from_str(words, from_array, &to_array);
+        convert_characters(parts, from_array, &to_array);
     } else if to == "b" || to == "B" {
         let to_array = BINARY;
-        convert_from_str(words, from_array, &to_array);
+        convert_characters(parts, from_array, &to_array);
     } else {
         println!("Enter a valid TO (t, d, o, h, 0, b)");
     }
 }
 
-fn convert_from_str(words: Vec<&str>, from_array: &[&str; 256], to_array: &[&str; 256]) {
+fn convert_characters<T>(parts: Vec<T>, from_array: &[&str; 256], to_array: &[&str; 256])
+where
+    for<'a> &'a str: PartialEq<T>,
+{
     let conversion_start = Instant::now();
-    for word in words {
-        // Get the index where each word in the MESSAGE matches the FROM array
-        let index: Option<usize> = from_array.iter().position(|&r| r == word);
-        match index {
-            // Print the value in the TO array at the same index (convert from -> to)
-            Some(value) => print!("{} ", to_array[value]),
-            // Notify the user that a MESSAGE character does not exist in the FROM array
-            // Likely due to typo / wrong FROM selected
-            None => println!("'NOT IN FROM CHARACTER SET'"),
-        }
-    }
-    let program_time = conversion_start.elapsed();
-    println!("\nTranslated in {:.2?}", program_time);
-}
-
-fn set_to_string(to: String, words: Vec<String>, from_array: &[&str; 256]) {
-    if to == "t" || to == "T" {
-        // Set which code to convert to
-        let to_array = TEXT;
-        convert_from_string(words, from_array, &to_array);
-    } else if to == "d" || to == "D" {
-        let to_array = DECIMAL;
-        convert_from_string(words, from_array, &to_array);
-    } else if to == "o" || to == "O" {
-        let to_array = OCTAL;
-        convert_from_string(words, from_array, &to_array);
-    } else if to == "h" || to == "H" {
-        let to_array = HEX;
-        convert_from_string(words, from_array, &to_array);
-    } else if to == "0" {
-        let to_array = HEX0;
-        convert_from_string(words, from_array, &to_array);
-    } else if to == "b" || to == "B" {
-        let to_array = BINARY;
-        convert_from_string(words, from_array, &to_array);
-    } else {
-        println!("Enter a valid TO (t, d, o, h, 0, b)");
-    }
-}
-
-fn convert_from_string(words: Vec<String>, from_array: &[&str; 256], to_array: &[&str; 256]) {
-    let conversion_start = Instant::now();
-    for word in words {
-        // Get the index where each word in the MESSAGE matches the FROM array
-        let index: Option<usize> = from_array.iter().position(|&r| r == word);
+    for part in parts {
+        // Get the index where each part in the MESSAGE matches the FROM array
+        let index: Option<usize> = from_array.iter().position(|&r| r == part);
         match index {
             // Print the value in the TO array at the same index (convert from -> to)
             Some(value) => print!("{} ", to_array[value]),
