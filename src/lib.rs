@@ -1,3 +1,4 @@
+#![warn(clippy::pedantic)]
 use std::io;
 use std::time::Instant;
 
@@ -12,6 +13,7 @@ pub enum AllowableOptions {
     Invalid,
 }
 
+#[must_use]
 pub fn input_to_enum(dictionary: String) -> AllowableOptions {
     let input = input_to_lower(dictionary);
 
@@ -26,6 +28,7 @@ pub fn input_to_enum(dictionary: String) -> AllowableOptions {
     }
 }
 
+#[must_use]
 pub fn input_to_lower(mut target: String) -> String {
     let _ = io::stdin().read_line(&mut target);
     let lower: String = target.to_lowercase();
@@ -33,7 +36,8 @@ pub fn input_to_lower(mut target: String) -> String {
     trimmed
 }
 
-pub fn vector_to_uppercase<T: ToString>(parts: Vec<T>) -> Vec<String> {
+#[must_use]
+pub fn vector_to_uppercase<T: ToString>(parts: &[T]) -> Vec<String> {
     // Convert hex input to uppercase to match the reference array
     let parts_upper: Vec<String> = parts
         .iter()
@@ -43,8 +47,8 @@ pub fn vector_to_uppercase<T: ToString>(parts: Vec<T>) -> Vec<String> {
 }
 
 pub fn set_pipeline(
-    from_enum: AllowableOptions,
-    to_enum: AllowableOptions,
+    from_enum: &AllowableOptions,
+    to_enum: &AllowableOptions,
     message_vector: Vec<&str>,
 ) {
     // Match the from selection to the proper dictionary
@@ -72,7 +76,7 @@ pub fn set_pipeline(
     // Convert the message to uppercase if the from selection was a Hex dictionary
     // Convert normally if not
     if from_dictionary == HEX || from_dictionary == HEX0 {
-        let parts_uppercase = vector_to_uppercase(message_vector);
+        let parts_uppercase = vector_to_uppercase(&message_vector);
         convert_characters(parts_uppercase, &from_dictionary, &to_dictionary);
     } else {
         convert_characters(message_vector, &from_dictionary, &to_dictionary);
@@ -99,10 +103,10 @@ pub fn convert_characters<T: ToString>(
         }
     }
     let program_time = conversion_start.elapsed();
-    println!("\nTranslated in {:.2?}", program_time);
+    println!("\nTranslated in {program_time:.2?}");
 }
 
-pub fn set_pipeline_char(to_enum: AllowableOptions, message_vector: Vec<char>) {
+pub fn set_pipeline_char(to_enum: &AllowableOptions, message_vector: Vec<char>) {
     // Match the to selection to the proper dictionary
     let to_dictionary = match to_enum {
         AllowableOptions::Text => TEXT,
@@ -131,7 +135,7 @@ pub fn convert_char(parts: Vec<char>, from_array: &[&str; 256], to_array: &[&str
         }
     }
     let program_time = conversion_start.elapsed();
-    println!("\nTranslated in {:.2?}", program_time);
+    println!("\nTranslated in {program_time:.2?}");
 }
 
 static TEXT: [&str; 256] = [

@@ -1,3 +1,4 @@
+#![warn(clippy::pedantic)]
 use ascii_converter::{AllowableOptions, input_to_enum, set_pipeline, set_pipeline_char};
 use std::io;
 use std::process::ExitCode;
@@ -44,12 +45,12 @@ fn main() -> ExitCode {
     if from_enum == AllowableOptions::Text {
         let message_vector: Vec<char> = message.chars().collect();
         // Set up the translation pipeline and translate the message accordingly
-        set_pipeline_char(to_enum, message_vector);
+        set_pipeline_char(&to_enum, message_vector);
     } else {
         // Split the MESSAGE on White Space and collect into a vector
         let message_vector: Vec<_> = message.split_whitespace().collect();
         // Set up the translation pipeline and translate the message accordingly
-        set_pipeline(from_enum, to_enum, message_vector);
+        set_pipeline(&from_enum, &to_enum, message_vector);
     }
 
     // Exit with success
