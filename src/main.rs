@@ -1,6 +1,6 @@
 use std::io;
 use std::process::ExitCode;
-use ascii_converter::{AllowableOptions, input_to_enum, set_pipeline};
+use ascii_converter::{AllowableOptions, input_to_enum, set_pipeline, set_pipeline_char};
 
 fn main() -> ExitCode {
     // Get the user input to determine which code to translate FROM
@@ -19,7 +19,7 @@ fn main() -> ExitCode {
     let to_enum = input_to_enum(String::new());
     // If input is not allowable, exit with error
     if to_enum == AllowableOptions::Invalid {
-        println!("[ INVALID ] From selection was invalid");
+        println!("[ INVALID ] To selection was invalid");
         return ExitCode::from(1);
     }
 
@@ -35,10 +35,16 @@ fn main() -> ExitCode {
     // Print a blank line for spacing
     println!();
 
-    // Split the MESSAGE on Characters and collect into a vector
-    let message_vector: Vec<_> = message.split_whitespace().collect();
-    // Set up the translation pipeline and translate the message accordingly
-    let _ = set_pipeline(from_enum, to_enum, message_vector);
+    if from_enum == AllowableOptions::Text {
+        let message_vector: Vec<char> = message.chars().collect();
+        // Set up the translation pipeline and translate the message accordingly
+        let _ = set_pipeline_char(to_enum, message_vector);
+    } else {
+        // Split the MESSAGE on White Space and collect into a vector
+        let message_vector: Vec<_> = message.split_whitespace().collect();
+        // Set up the translation pipeline and translate the message accordingly
+        let _ = set_pipeline(from_enum, to_enum, message_vector);
+    }
 
     // Exit with success
     ExitCode::SUCCESS

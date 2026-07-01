@@ -43,6 +43,7 @@ pub fn vector_to_uppercase<T: ToString>(parts: Vec<T>) -> Vec<String> {
     parts_upper
 }
 
+
 pub fn set_pipeline(from_enum: AllowableOptions, to_enum: AllowableOptions, message_vector: Vec<&str>) {
     // Match the from selection to the proper dictionary
     let from_dictionary = match from_enum {
@@ -76,14 +77,46 @@ pub fn set_pipeline(from_enum: AllowableOptions, to_enum: AllowableOptions, mess
     }
 }
 
-pub fn convert_characters<T>(parts: Vec<T>, from_array: &[&str; 256], to_array: &[&str; 256])
+pub fn convert_characters<T: ToString>(parts: Vec<T>, from_array: &[&str; 256], to_array: &[&str; 256])
 where
     for<'a> &'a str: PartialEq<T>,
 {
     let conversion_start = Instant::now();
     for part in parts {
         // Get the index where each part in the MESSAGE matches the FROM array
-        let index: Option<usize> = from_array.iter().position(|&r| r == part);
+        let index: Option<usize> = from_array.iter().position(|&r| part.to_string() == r);
+        match index {
+            // Print the value in the TO array at the same index (convert from -> to)
+            Some(value) => print!("{} ", to_array[value]),
+            // Notify the user that a MESSAGE character does not exist in the FROM array
+            // Likely due to typo / wrong FROM selected
+            None => println!("'NOT IN FROM CHARACTER SET'"),
+        }
+    }
+    let program_time = conversion_start.elapsed();
+    println!("\nTranslated in {:.2?}", program_time);
+}
+
+pub fn set_pipeline_char(to_enum: AllowableOptions, message_vector: Vec<char>) {
+    // Match the to selection to the proper dictionary
+    let to_dictionary = match to_enum {
+        AllowableOptions::Text => TEXT,
+        AllowableOptions::Decimal => DECIMAL,
+        AllowableOptions::Octal => OCTAL,
+        AllowableOptions::Hexadecimal => HEX,
+        AllowableOptions::ZeroXHexadecimal => HEX0,
+        AllowableOptions::Binary => BINARY,
+        AllowableOptions::Invalid => unreachable!("This arm should not be reachable"),
+    };
+
+    convert_char(message_vector, &TEXT, &to_dictionary);
+}
+
+pub fn convert_char(parts: Vec<char>, from_array: &[&str; 256], to_array: &[&str; 256]) {
+    let conversion_start = Instant::now();
+    for part in parts {
+        // Get the index where each part in the MESSAGE matches the FROM array
+        let index: Option<usize> = from_array.iter().position(|&r| r == part.to_string());
         match index {
             // Print the value in the TO array at the same index (convert from -> to)
             Some(value) => print!("{} ", to_array[value]),
@@ -107,7 +140,7 @@ static TEXT: [&str; 256] = [
     "z", "{", "|", "}", "~", "DEL", "€", "Unused", "‚", "ƒ", "„", "…", "†", "‡", "ˆ", "‰", "Š",
     "‹", "Œ", "Unused", "Ž", "Unused", "Unused", "‘", "’", "“", "”", "•", "–", "—", "˜", "™", "š",
     "›", "œ", "Unused", "ž", "Ÿ", "NBSP", "¡", "¢", "£", "¤", "¥", "¦", "§", "¨", "©", "ª", "«",
-    "¬", "\u{AD}", "®", "¯", "°", "±", "²", "³", "´", "µ", "¶", "·", "¸", "¹", "º", "»", "¼", "½",
+    "¬", " ", "®", "¯", "°", "±", "²", "³", "´", "µ", "¶", "·", "¸", "¹", "º", "»", "¼", "½",
     "¾", "¿", "À", "Á", "Â", "Ã", "Ä", "Å", "Æ", "Ç", "È", "É", "Ê", "Ë", "Ì", "Í", "Î", "Ï", "Ð",
     "Ñ", "Ò", "Ó", "Ô", "Õ", "Ö", "×", "Ø", "Ù", "Ú", "Û", "Ü", "Ý", "Þ", "ß", "à", "á", "â", "ã",
     "ä", "å", "æ", "ç", "è", "é", "ê", "ë", "ì", "í", "î", "ï", "ð", "ñ", "ò", "ó", "ô", "õ", "ö",
