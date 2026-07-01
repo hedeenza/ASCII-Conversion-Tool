@@ -56,9 +56,9 @@ fn main() -> ExitCode {
 
     // Print a blank line for spacing
     println!();
-
-    // Split the MESSAGE on the white space and collect into a vector
-    let parts: Vec<&str> = message.split_whitespace().collect();
+    
+    // Split the MESSAGE on Characters and collect into a vector
+    let parts: Vec<_> = message.split_whitespace().collect();
 
     // Run the conversion based on FROM and TO
     if from == "t" || from == "T" {
