@@ -43,20 +43,45 @@ pub fn vector_to_uppercase<T: ToString>(parts: Vec<T>) -> Vec<String> {
     parts_upper
 }
 
-pub fn set_to<T>(to_enum: AllowableOptions, parts: Vec<T>, from_array: &[&str; 256])
-where
-    for<'a> &'a str: PartialEq<T>,
-{
-    match to_enum {
-        AllowableOptions::Text => { convert_characters(parts, from_array, &TEXT) }
-        AllowableOptions::Decimal => { convert_characters(parts, from_array, &DECIMAL) }
-        AllowableOptions::Octal => { convert_characters(parts, from_array, &OCTAL) }
-        AllowableOptions::Hexadecimal => { convert_characters(parts, from_array, &HEX) }
-        AllowableOptions::ZeroXHexadecimal => { convert_characters(parts, from_array, &HEX0) }
-        AllowableOptions::Binary => { convert_characters(parts, from_array, &BINARY) }
-        AllowableOptions::Invalid => { println!("Invalid Option") }
-    }
+pub fn set_pipeline(from_enum: AllowableOptions, to_enum: AllowableOptions, message_vector: Vec<&str>) {
+            // let parts_uppercase = vector_to_uppercase(parts);
+    let from_dictionary = match from_enum {
+        AllowableOptions::Text => TEXT,
+        AllowableOptions::Decimal => DECIMAL,
+        AllowableOptions::Octal => OCTAL,
+        AllowableOptions::Hexadecimal => HEX,
+        AllowableOptions::ZeroXHexadecimal => HEX0,
+        AllowableOptions::Binary => BINARY,
+        AllowableOptions::Invalid => unreachable!("This arm should not be reachable"),
+    };
+
+    let to_dictionary = match to_enum {
+        AllowableOptions::Text => TEXT,
+        AllowableOptions::Decimal => DECIMAL,
+        AllowableOptions::Octal => OCTAL,
+        AllowableOptions::Hexadecimal => HEX,
+        AllowableOptions::ZeroXHexadecimal => HEX0,
+        AllowableOptions::Binary => BINARY,
+        AllowableOptions::Invalid => unreachable!("This arm should not be reachable"),
+    };
+
+    convert_characters(message_vector, &from_dictionary, &to_dictionary);
 }
+
+// pub fn set_to<T>(to_enum: AllowableOptions, parts: Vec<T>, from_array: &[&str; 256])
+// where
+//     for<'a> &'a str: PartialEq<T>,
+// {
+//     match to_enum {
+//         AllowableOptions::Text => { convert_characters(parts, from_array, &TEXT) }
+//         AllowableOptions::Decimal => { convert_characters(parts, from_array, &DECIMAL) }
+//         AllowableOptions::Octal => { convert_characters(parts, from_array, &OCTAL) }
+//         AllowableOptions::Hexadecimal => { convert_characters(parts, from_array, &HEX) }
+//         AllowableOptions::ZeroXHexadecimal => { convert_characters(parts, from_array, &HEX0) }
+//         AllowableOptions::Binary => { convert_characters(parts, from_array, &BINARY) }
+//         AllowableOptions::Invalid => { println!("Invalid Option") }
+//     }
+// }
 
 pub fn convert_characters<T>(parts: Vec<T>, from_array: &[&str; 256], to_array: &[&str; 256])
 where
