@@ -15,7 +15,7 @@ pub enum AllowableOptions {
 pub fn input_to_enum(dictionary: String) -> AllowableOptions {
     let input = input_to_lower(dictionary);
 
-    let dictionary_enum = match input.as_str() {
+    match input.as_str() {
         "t" => AllowableOptions::Text,
         "d" => AllowableOptions::Decimal,
         "o" => AllowableOptions::Octal,
@@ -23,8 +23,7 @@ pub fn input_to_enum(dictionary: String) -> AllowableOptions {
         "x" => AllowableOptions::ZeroXHexadecimal,
         "b" => AllowableOptions::Binary,
         _ => AllowableOptions::Invalid,
-    };
-    dictionary_enum
+    }
 }
 
 pub fn input_to_lower(mut target: String) -> String {
@@ -43,8 +42,11 @@ pub fn vector_to_uppercase<T: ToString>(parts: Vec<T>) -> Vec<String> {
     parts_upper
 }
 
-
-pub fn set_pipeline(from_enum: AllowableOptions, to_enum: AllowableOptions, message_vector: Vec<&str>) {
+pub fn set_pipeline(
+    from_enum: AllowableOptions,
+    to_enum: AllowableOptions,
+    message_vector: Vec<&str>,
+) {
     // Match the from selection to the proper dictionary
     let from_dictionary = match from_enum {
         AllowableOptions::Text => TEXT,
@@ -77,14 +79,17 @@ pub fn set_pipeline(from_enum: AllowableOptions, to_enum: AllowableOptions, mess
     }
 }
 
-pub fn convert_characters<T: ToString>(parts: Vec<T>, from_array: &[&str; 256], to_array: &[&str; 256])
-where
+pub fn convert_characters<T: ToString>(
+    parts: Vec<T>,
+    from_array: &[&str; 256],
+    to_array: &[&str; 256],
+) where
     for<'a> &'a str: PartialEq<T>,
 {
     let conversion_start = Instant::now();
     for part in parts {
         // Get the index where each part in the MESSAGE matches the FROM array
-        let index: Option<usize> = from_array.iter().position(|&r| part.to_string() == r);
+        let index: Option<usize> = from_array.iter().position(|&r| r == part);
         match index {
             // Print the value in the TO array at the same index (convert from -> to)
             Some(value) => print!("{} ", to_array[value]),
@@ -140,11 +145,11 @@ static TEXT: [&str; 256] = [
     "z", "{", "|", "}", "~", "DEL", "€", "Unused", "‚", "ƒ", "„", "…", "†", "‡", "ˆ", "‰", "Š",
     "‹", "Œ", "Unused", "Ž", "Unused", "Unused", "‘", "’", "“", "”", "•", "–", "—", "˜", "™", "š",
     "›", "œ", "Unused", "ž", "Ÿ", "NBSP", "¡", "¢", "£", "¤", "¥", "¦", "§", "¨", "©", "ª", "«",
-    "¬", " ", "®", "¯", "°", "±", "²", "³", "´", "µ", "¶", "·", "¸", "¹", "º", "»", "¼", "½",
-    "¾", "¿", "À", "Á", "Â", "Ã", "Ä", "Å", "Æ", "Ç", "È", "É", "Ê", "Ë", "Ì", "Í", "Î", "Ï", "Ð",
-    "Ñ", "Ò", "Ó", "Ô", "Õ", "Ö", "×", "Ø", "Ù", "Ú", "Û", "Ü", "Ý", "Þ", "ß", "à", "á", "â", "ã",
-    "ä", "å", "æ", "ç", "è", "é", "ê", "ë", "ì", "í", "î", "ï", "ð", "ñ", "ò", "ó", "ô", "õ", "ö",
-    "÷", "ø", "ù", "ú", "û", "ü", "ý", "þ", "ÿ",
+    "¬", " ", "®", "¯", "°", "±", "²", "³", "´", "µ", "¶", "·", "¸", "¹", "º", "»", "¼", "½", "¾",
+    "¿", "À", "Á", "Â", "Ã", "Ä", "Å", "Æ", "Ç", "È", "É", "Ê", "Ë", "Ì", "Í", "Î", "Ï", "Ð", "Ñ",
+    "Ò", "Ó", "Ô", "Õ", "Ö", "×", "Ø", "Ù", "Ú", "Û", "Ü", "Ý", "Þ", "ß", "à", "á", "â", "ã", "ä",
+    "å", "æ", "ç", "è", "é", "ê", "ë", "ì", "í", "î", "ï", "ð", "ñ", "ò", "ó", "ô", "õ", "ö", "÷",
+    "ø", "ù", "ú", "û", "ü", "ý", "þ", "ÿ",
 ];
 
 static DECIMAL: [&str; 256] = [
