@@ -1,93 +1,51 @@
-use std::io;
-use std::process::ExitCode;
-use ascii_converter::set_to;
+use std::time::Instant;
 
-fn main() -> ExitCode {
-    // Create new strings for which code to translate from, to, and the message to translate
-    let mut from = String::new();
-    let mut to = String::new();
-    let mut message = String::new();
-    let allowable_options = ["t", "T", "d", "D", "o", "O", "h", "H", "0", "b", "B"];
-
-    // Get the user input to determine which code to translate FROM
-    println!(
-        "\nFrom?\n(t)ext, (d)ecimal, (o)ctal, (h)exadecimal,\nHexadecimal with leading (0)x, (b)inary"
-    );
-    io::stdin()
-        .read_line(&mut from)
-        .expect("Failed to read line");
-
-    // Trim and parse the input to remove the newline character left by the user pressing ENTER
-    let from: String = from.trim().parse().expect("Could not convert line");
-
-    // Exit the program if an invalid FROM option is entered
-    if allowable_options.contains(&from.as_str()) {
-        {}
+pub fn set_to<T>(to: String, parts: Vec<T>, from_array: &[&str; 256])
+where
+    for<'a> &'a str: PartialEq<T>,
+{
+    if to == "t" || to == "T" {
+        // Set which code to convert to
+        let to_array = TEXT;
+        convert_characters(parts, from_array, &to_array);
+    } else if to == "d" || to == "D" {
+        let to_array = DECIMAL;
+        convert_characters(parts, from_array, &to_array);
+    } else if to == "o" || to == "O" {
+        let to_array = OCTAL;
+        convert_characters(parts, from_array, &to_array);
+    } else if to == "h" || to == "H" {
+        let to_array = HEX;
+        convert_characters(parts, from_array, &to_array);
+    } else if to == "0" {
+        let to_array = HEX0;
+        convert_characters(parts, from_array, &to_array);
+    } else if to == "b" || to == "B" {
+        let to_array = BINARY;
+        convert_characters(parts, from_array, &to_array);
     } else {
-        println!("Invalid Option for FROM");
-        return ExitCode::from(1);
+        println!("Enter a valid TO (t, d, o, h, 0, b)");
     }
+}
 
-    // Get the user input to determine which code to translate TO
-    println!(
-        "\nTo?\n(t)ext, (d)ecimal, (o)ctal, (h)exadecimal,\nHexadecimal with leading (0)x, (b)inary"
-    );
-    io::stdin().read_line(&mut to).expect("Failed to read line");
-
-    // Trim and parse the input to remove the newline character left by the user pressing ENTER
-    let to: String = to.trim().parse().expect("Could not convert line");
-
-    // Exit the program if an invalid TO option is entered
-    if allowable_options.contains(&to.as_str()) {
-        {}
-    } else {
-        println!("Invalid Option for TO");
-        return ExitCode::from(1);
+pub fn convert_characters<T>(parts: Vec<T>, from_array: &[&str; 256], to_array: &[&str; 256])
+where
+    for<'a> &'a str: PartialEq<T>,
+{
+    let conversion_start = Instant::now();
+    for part in parts {
+        // Get the index where each part in the MESSAGE matches the FROM array
+        let index: Option<usize> = from_array.iter().position(|&r| r == part);
+        match index {
+            // Print the value in the TO array at the same index (convert from -> to)
+            Some(value) => print!("{} ", to_array[value]),
+            // Notify the user that a MESSAGE character does not exist in the FROM array
+            // Likely due to typo / wrong FROM selected
+            None => println!("'NOT IN FROM CHARACTER SET'"),
+        }
     }
-
-    // Get the user input to determine the MESSAGE
-    println!("\nMessage:");
-    io::stdin()
-        .read_line(&mut message)
-        .expect("Failed to read line");
-
-    // Trim and parse the input to remove the newline character left by the user pressing ENTER
-    let message: String = message.trim().parse().expect("Could not convert line");
-
-    // Print a blank line for spacing
-    println!();
-    
-    // Split the MESSAGE on Characters and collect into a vector
-    let parts: Vec<_> = message.split_whitespace().collect();
-
-    // Run the conversion based on FROM and TO
-    if from == "t" || from == "T" {
-        set_to(to, parts, &TEXT);
-    } else if from == "d" || from == "D" {
-        set_to(to, parts, &DECIMAL);
-    } else if from == "o" || from == "O" {
-        set_to(to, parts, &OCTAL);
-    } else if from == "h" || from == "H" {
-        // Convert hex input to uppercase to match the reference array
-        let parts_upper: Vec<String> = parts
-            .iter()
-            .map(|&part| part.to_string().to_uppercase())
-            .collect();
-        // Translate the message using the function versions that accepts <String>, rather than <&str>
-        set_to(to, parts_upper, &HEX);
-    } else if from == "0" {
-        let parts_upper: Vec<String> = parts
-            .iter()
-            .map(|&part| part.to_string().to_uppercase())
-            .collect();
-        set_to(to, parts_upper, &HEX0);
-    } else if from == "b" || from == "B" {
-        set_to(to, parts, &BINARY);
-    } else {
-        println!("Enter a valid FROM (t, d, o, h, 0, b)");
-    }
-
-    ExitCode::SUCCESS
+    let program_time = conversion_start.elapsed();
+    println!("\nTranslated in {:.2?}", program_time);
 }
 
 static TEXT: [&str; 256] = [
