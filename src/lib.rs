@@ -12,6 +12,21 @@ pub enum AllowableOptions {
     Invalid,
 }
 
+pub fn input_to_enum(dictionary: String) -> AllowableOptions {
+    let input = input_to_lower(dictionary);
+
+    let dictionary_enum = match input.as_str() {
+        "t" => AllowableOptions::Text,
+        "d" => AllowableOptions::Decimal,
+        "o" => AllowableOptions::Octal,
+        "h" => AllowableOptions::Hexadecimal,
+        "x" => AllowableOptions::ZeroXHexadecimal,
+        "b" => AllowableOptions::Binary,
+        _ => AllowableOptions::Invalid,
+    };
+    dictionary_enum
+}
+
 pub fn input_to_lower(mut target: String) -> String {
     let _ = io::stdin().read_line(&mut target);
     let lower: String = target.to_lowercase();

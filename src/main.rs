@@ -1,31 +1,14 @@
 use std::io;
 use std::process::ExitCode;
-use ascii_converter::{AllowableOptions, input_to_lower, vector_to_uppercase, set_to};
+use ascii_converter::{AllowableOptions, input_to_enum, vector_to_uppercase, set_to};
 
 fn main() -> ExitCode {
-    // Create new strings for which code to translate from, to, and the message to translate
-    let from = String::new();
-    let to = String::new();
-    let mut message = String::new();
-
-
-
     // Get the user input to determine which code to translate FROM
     println!(
         "\nFrom?\n(t)ext, (d)ecimal, (o)ctal, (h)exadecimal,\nHexadecimal with leading 0(x), (b)inary"
     );
 
-    let from_input = input_to_lower(from);
-
-    let from_enum = match from_input.as_str() {
-        "t" => AllowableOptions::Text,
-        "d" => AllowableOptions::Decimal,
-        "o" => AllowableOptions::Octal,
-        "h" => AllowableOptions::Hexadecimal,
-        "x" => AllowableOptions::ZeroXHexadecimal,
-        "b" => AllowableOptions::Binary,
-        _ => AllowableOptions::Invalid,
-    };
+    let from_enum = input_to_enum(String::new());
 
     if from_enum == AllowableOptions::Invalid {
         println!("[ INVALID ] From selection was invalid");
@@ -39,17 +22,7 @@ fn main() -> ExitCode {
         "\nTo?\n(t)ext, (d)ecimal, (o)ctal, (h)exadecimal,\nHexadecimal with leading (0)x, (b)inary"
     );
 
-    let to_input = input_to_lower(to);
-
-    let to_enum = match to_input.as_str() {
-        "t" => AllowableOptions::Text,
-        "d" => AllowableOptions::Decimal,
-        "o" => AllowableOptions::Octal,
-        "h" => AllowableOptions::Hexadecimal,
-        "x" => AllowableOptions::ZeroXHexadecimal,
-        "b" => AllowableOptions::Binary,
-        _ => AllowableOptions::Invalid,
-    };
+    let to_enum = input_to_enum(String::new());
 
     if to_enum == AllowableOptions::Invalid {
         println!("[ INVALID ] From selection was invalid");
@@ -57,6 +30,8 @@ fn main() -> ExitCode {
     }
 
 
+    // Create new strings  the message to translate
+    let mut message = String::new();
 
     // Get the user input to determine the MESSAGE
     println!("\nMessage:");
@@ -68,7 +43,6 @@ fn main() -> ExitCode {
     // Print a blank line for spacing
     println!();
     
-
 
 
     // Split the MESSAGE on Characters and collect into a vector
