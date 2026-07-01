@@ -1,30 +1,45 @@
+use std::io;
 use std::time::Instant;
 
-pub fn set_to<T>(to: String, parts: Vec<T>, from_array: &[&str; 256])
+#[derive(Debug, PartialEq)]
+pub enum AllowableOptions {
+    Text,
+    Decimal,
+    Octal,
+    Hexadecimal,
+    ZeroXHexadecimal,
+    Binary,
+    Invalid,
+}
+
+pub fn input_to_lower(mut target: String) -> String {
+    let _ = io::stdin().read_line(&mut target);
+    let lower: String = target.to_lowercase();
+    let trimmed: String = lower.trim().to_string();
+    trimmed
+}
+
+pub fn vector_to_uppercase<T: ToString>(parts: Vec<T>) -> Vec<String> {
+    // Convert hex input to uppercase to match the reference array
+    let parts_upper: Vec<String> = parts
+        .iter()
+        .map(|part| part.to_string().to_uppercase())
+        .collect();
+    parts_upper
+}
+
+pub fn set_to<T>(to_enum: AllowableOptions, parts: Vec<T>, from_array: &[&str; 256])
 where
     for<'a> &'a str: PartialEq<T>,
 {
-    if to == "t" || to == "T" {
-        // Set which code to convert to
-        let to_array = TEXT;
-        convert_characters(parts, from_array, &to_array);
-    } else if to == "d" || to == "D" {
-        let to_array = DECIMAL;
-        convert_characters(parts, from_array, &to_array);
-    } else if to == "o" || to == "O" {
-        let to_array = OCTAL;
-        convert_characters(parts, from_array, &to_array);
-    } else if to == "h" || to == "H" {
-        let to_array = HEX;
-        convert_characters(parts, from_array, &to_array);
-    } else if to == "0" {
-        let to_array = HEX0;
-        convert_characters(parts, from_array, &to_array);
-    } else if to == "b" || to == "B" {
-        let to_array = BINARY;
-        convert_characters(parts, from_array, &to_array);
-    } else {
-        println!("Enter a valid TO (t, d, o, h, 0, b)");
+    match to_enum {
+        AllowableOptions::Text => { convert_characters(parts, from_array, &TEXT) }
+        AllowableOptions::Decimal => { convert_characters(parts, from_array, &DECIMAL) }
+        AllowableOptions::Octal => { convert_characters(parts, from_array, &OCTAL) }
+        AllowableOptions::Hexadecimal => { convert_characters(parts, from_array, &HEX) }
+        AllowableOptions::ZeroXHexadecimal => { convert_characters(parts, from_array, &HEX0) }
+        AllowableOptions::Binary => { convert_characters(parts, from_array, &BINARY) }
+        AllowableOptions::Invalid => { println!("Invalid Option") }
     }
 }
 

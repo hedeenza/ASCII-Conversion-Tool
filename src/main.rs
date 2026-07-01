@@ -1,55 +1,66 @@
 use std::io;
 use std::process::ExitCode;
-use ascii_converter::set_to;
+use ascii_converter::{AllowableOptions, input_to_lower, vector_to_uppercase, set_to};
 
 fn main() -> ExitCode {
     // Create new strings for which code to translate from, to, and the message to translate
-    let mut from = String::new();
-    let mut to = String::new();
+    let from = String::new();
+    let to = String::new();
     let mut message = String::new();
-    let allowable_options = ["t", "T", "d", "D", "o", "O", "h", "H", "0", "b", "B"];
+
+
 
     // Get the user input to determine which code to translate FROM
     println!(
-        "\nFrom?\n(t)ext, (d)ecimal, (o)ctal, (h)exadecimal,\nHexadecimal with leading (0)x, (b)inary"
+        "\nFrom?\n(t)ext, (d)ecimal, (o)ctal, (h)exadecimal,\nHexadecimal with leading 0(x), (b)inary"
     );
-    io::stdin()
-        .read_line(&mut from)
-        .expect("Failed to read line");
 
-    // Trim and parse the input to remove the newline character left by the user pressing ENTER
-    let from: String = from.trim().parse().expect("Could not convert line");
+    let from_input = input_to_lower(from);
 
-    // Exit the program if an invalid FROM option is entered
-    if allowable_options.contains(&from.as_str()) {
-        {}
-    } else {
-        println!("Invalid Option for FROM");
+    let from_enum = match from_input.as_str() {
+        "t" => AllowableOptions::Text,
+        "d" => AllowableOptions::Decimal,
+        "o" => AllowableOptions::Octal,
+        "h" => AllowableOptions::Hexadecimal,
+        "x" => AllowableOptions::ZeroXHexadecimal,
+        "b" => AllowableOptions::Binary,
+        _ => AllowableOptions::Invalid,
+    };
+
+    if from_enum == AllowableOptions::Invalid {
+        println!("[ INVALID ] From selection was invalid");
         return ExitCode::from(1);
     }
+
+
 
     // Get the user input to determine which code to translate TO
     println!(
         "\nTo?\n(t)ext, (d)ecimal, (o)ctal, (h)exadecimal,\nHexadecimal with leading (0)x, (b)inary"
     );
-    io::stdin().read_line(&mut to).expect("Failed to read line");
 
-    // Trim and parse the input to remove the newline character left by the user pressing ENTER
-    let to: String = to.trim().parse().expect("Could not convert line");
+    let to_input = input_to_lower(to);
 
-    // Exit the program if an invalid TO option is entered
-    if allowable_options.contains(&to.as_str()) {
-        {}
-    } else {
-        println!("Invalid Option for TO");
+    let to_enum = match to_input.as_str() {
+        "t" => AllowableOptions::Text,
+        "d" => AllowableOptions::Decimal,
+        "o" => AllowableOptions::Octal,
+        "h" => AllowableOptions::Hexadecimal,
+        "x" => AllowableOptions::ZeroXHexadecimal,
+        "b" => AllowableOptions::Binary,
+        _ => AllowableOptions::Invalid,
+    };
+
+    if to_enum == AllowableOptions::Invalid {
+        println!("[ INVALID ] From selection was invalid");
         return ExitCode::from(1);
     }
 
+
+
     // Get the user input to determine the MESSAGE
     println!("\nMessage:");
-    io::stdin()
-        .read_line(&mut message)
-        .expect("Failed to read line");
+    let _message_input = io::stdin().read_line(&mut message).expect("Failed to read line");
 
     // Trim and parse the input to remove the newline character left by the user pressing ENTER
     let message: String = message.trim().parse().expect("Could not convert line");
@@ -57,34 +68,27 @@ fn main() -> ExitCode {
     // Print a blank line for spacing
     println!();
     
+
+
+
     // Split the MESSAGE on Characters and collect into a vector
     let parts: Vec<_> = message.split_whitespace().collect();
 
     // Run the conversion based on FROM and TO
-    if from == "t" || from == "T" {
-        set_to(to, parts, &TEXT);
-    } else if from == "d" || from == "D" {
-        set_to(to, parts, &DECIMAL);
-    } else if from == "o" || from == "O" {
-        set_to(to, parts, &OCTAL);
-    } else if from == "h" || from == "H" {
-        // Convert hex input to uppercase to match the reference array
-        let parts_upper: Vec<String> = parts
-            .iter()
-            .map(|&part| part.to_string().to_uppercase())
-            .collect();
-        // Translate the message using the function versions that accepts <String>, rather than <&str>
-        set_to(to, parts_upper, &HEX);
-    } else if from == "0" {
-        let parts_upper: Vec<String> = parts
-            .iter()
-            .map(|&part| part.to_string().to_uppercase())
-            .collect();
-        set_to(to, parts_upper, &HEX0);
-    } else if from == "b" || from == "B" {
-        set_to(to, parts, &BINARY);
-    } else {
-        println!("Enter a valid FROM (t, d, o, h, 0, b)");
+    match from_enum {
+        AllowableOptions::Text => { set_to(to_enum, parts, &TEXT) }
+        AllowableOptions::Decimal => { set_to(to_enum, parts, &DECIMAL) }
+        AllowableOptions::Octal => { set_to(to_enum, parts, &OCTAL) }
+        AllowableOptions::Hexadecimal => { 
+            let parts_uppercase = vector_to_uppercase(parts);
+            set_to(to_enum, parts_uppercase, &HEX) 
+        }
+        AllowableOptions::ZeroXHexadecimal => { 
+            let parts_uppercase = vector_to_uppercase(parts);
+            set_to(to_enum, parts_uppercase, &HEX0) 
+        }
+        AllowableOptions::Binary => { set_to(to_enum, parts, &BINARY) }
+        AllowableOptions::Invalid => { println!("Invalid Option") }
     }
 
     ExitCode::SUCCESS
