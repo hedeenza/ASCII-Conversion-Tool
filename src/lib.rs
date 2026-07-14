@@ -96,7 +96,10 @@ pub fn convert_characters<T: ToString>(
         let index: Option<usize> = from_array.iter().position(|&r| r == part);
         match index {
             // Print the value in the TO array at the same index (convert from -> to)
-            Some(value) => print!("{} ", to_array[value]),
+            Some(value) => {
+                if *to_array == TEXT { print!("{}", to_array[value]); }
+                else { print!("{} ", to_array[value]); }
+            }
             // Notify the user that a MESSAGE character does not exist in the FROM array
             // Likely due to typo / wrong FROM selected
             None => println!("'NOT IN FROM CHARACTER SET'"),
@@ -128,7 +131,10 @@ pub fn convert_char(parts: Vec<char>, from_array: &[&str; 256], to_array: &[&str
         let index: Option<usize> = from_array.iter().position(|&r| r == part.to_string());
         match index {
             // Print the value in the TO array at the same index (convert from -> to)
-            Some(value) => print!("{} ", to_array[value]),
+            Some(value) => {
+                if *to_array == TEXT { print!("{}", to_array[value]); }
+                else { print!("{} ", to_array[value]); }
+            }
             // Notify the user that a MESSAGE character does not exist in the FROM array
             // Likely due to typo / wrong FROM selected
             None => println!("'NOT IN FROM CHARACTER SET'"),
