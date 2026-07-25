@@ -13,9 +13,7 @@
 - Follow the prompts to select which format to convert from and to.
 - Type or paste in the message you wish to convert.
 - ***WARNING: Take great care when pasting in text from untrusted sources, as it may be an attempt to run malicious commands on your device.***
-- If converting from "TEXT" / "Standard Text", ensure there is a space between each character (e.g. Input "ASCII"" as "A S C I I").
 - Ensure the program has executable permissions.
-
 
 ## Building from Source
 Navigate to the project root directory.
@@ -35,5 +33,3 @@ alias ac="ascii_converter"
 ```
 
 ## License
-
-This program is distributed under the terms of a GNU GPLv3 license. See LICENSE.md for details.
