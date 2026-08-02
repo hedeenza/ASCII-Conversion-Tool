@@ -2,7 +2,7 @@
 use std::io;
 use std::time::Instant;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum AllowableOptions {
     Text,
     Decimal,
@@ -22,7 +22,7 @@ pub fn input_to_enum(dictionary: String) -> AllowableOptions {
         "d" => AllowableOptions::Decimal,
         "o" => AllowableOptions::Octal,
         "h" => AllowableOptions::Hexadecimal,
-        "x" => AllowableOptions::ZeroXHexadecimal,
+        "0" => AllowableOptions::ZeroXHexadecimal,
         "b" => AllowableOptions::Binary,
         _ => AllowableOptions::Invalid,
     }
@@ -59,7 +59,7 @@ pub fn set_pipeline(
         AllowableOptions::Hexadecimal => HEX,
         AllowableOptions::ZeroXHexadecimal => HEX0,
         AllowableOptions::Binary => BINARY,
-        AllowableOptions::Invalid => unreachable!("This arm should not be reachable"),
+        AllowableOptions::Invalid => ["From Error"; 256]
     };
 
     // Match the to selection to the proper dictionary
@@ -70,7 +70,7 @@ pub fn set_pipeline(
         AllowableOptions::Hexadecimal => HEX,
         AllowableOptions::ZeroXHexadecimal => HEX0,
         AllowableOptions::Binary => BINARY,
-        AllowableOptions::Invalid => unreachable!("This arm should not be reachable"),
+        AllowableOptions::Invalid => ["To Error"; 256]
     };
 
     // Convert the message to uppercase if the from selection was a Hex dictionary
@@ -97,8 +97,8 @@ pub fn convert_characters<T: ToString>(
         match index {
             // Print the value in the TO array at the same index (convert from -> to)
             Some(value) => {
-                if *to_array == TEXT { print!("{}", to_array[value]); }
-                else { print!("{} ", to_array[value]); }
+                if *to_array == TEXT { print!("{:?}", to_array.get(value)); }
+                else { print!("{:?} ", to_array.get(value)); }
             }
             // Notify the user that a MESSAGE character does not exist in the FROM array
             // Likely due to typo / wrong FROM selected
@@ -118,7 +118,7 @@ pub fn set_pipeline_char(to_enum: &AllowableOptions, message_vector: Vec<char>) 
         AllowableOptions::Hexadecimal => HEX,
         AllowableOptions::ZeroXHexadecimal => HEX0,
         AllowableOptions::Binary => BINARY,
-        AllowableOptions::Invalid => unreachable!("This arm should not be reachable"),
+        AllowableOptions::Invalid => ["To Error"; 256],
     };
 
     convert_char(message_vector, &TEXT, &to_dictionary);
@@ -132,8 +132,14 @@ pub fn convert_char(parts: Vec<char>, from_array: &[&str; 256], to_array: &[&str
         match index {
             // Print the value in the TO array at the same index (convert from -> to)
             Some(value) => {
-                if *to_array == TEXT { print!("{}", to_array[value]); }
-                else { print!("{} ", to_array[value]); }
+                if *to_array == TEXT { 
+                    let character = to_array.get(value).map_or("Null", |char| char);
+                    print!("{character}"); 
+                }
+                else { 
+                    let character = to_array.get(value).map_or("Null", |char| char);
+                    print!("{character} "); 
+                }
             }
             // Notify the user that a MESSAGE character does not exist in the FROM array
             // Likely due to typo / wrong FROM selected

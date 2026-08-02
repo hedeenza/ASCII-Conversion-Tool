@@ -33,9 +33,12 @@ fn main() -> ExitCode {
     // Get the user input to determine the MESSAGE
     println!("\nMessage:");
     // Read the message input
-    let _message_input = io::stdin()
-        .read_line(&mut message)
-        .expect("Failed to read line");
+    let message_input = io::stdin()
+        .read_line(&mut message);
+    match message_input {
+        Ok(_message) => { println!("[ MESSAGE READ ]")}
+        Err(err) => { eprintln!("[ ERROR ]: {err}") }
+    }
     // Trim and parse the input to remove the newline character left by the user pressing ENTER
     let message: String = message.trim().parse().expect("Could not convert line");
 
